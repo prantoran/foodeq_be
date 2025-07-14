@@ -7,9 +7,9 @@
 
 ### Rust version
 ```bash
-λ rustup check     
-stable-x86_64-unknown-linux-gnu - Update available : 1.82.0 (f6e511eec 2024-10-15) -> 1.88.0 (6b00bc388 2025-06-23)
-rustup - Update available : 1.27.1 -> 1.28.2
+rustup check     
+#stable-x86_64-unknown-linux-gnu - Update available : 1.82.0 (f6e511eec 2024-10-15) -> 1.88.0 (6b00bc388 2025-06-23)
+#rustup - Update available : 1.27.1 -> 1.28.2
 ```
 
 #### Folder structure
@@ -17,8 +17,12 @@ rustup - Update available : 1.27.1 -> 1.28.2
 ```bash
 cargo new server
 # copy generated files into root dir
+
 cargo build
 target/debug/server
+# Hello, world!
+
+cargo run
 # Hello, world!
 ```
 
@@ -28,6 +32,12 @@ cargo add tokio --features=full
 cargo add axum --features=macros,http2,ws
 cargo add serde --features=derive # de/serializing data
 cargo add uuid --features=v4
+```
+
+## Dev
+
+```bash
+cargo run
 ```
 
 ## Notes
