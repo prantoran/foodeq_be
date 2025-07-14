@@ -1,19 +1,18 @@
 #!/bin/bash
 
 curl http://localhost:3000/ -X GET -v
-# Expected output: "Hello, World!"
 
 echo ""
 echo "-----------------------------"
 
 curl http://localhost:3000/vehicle -X GET -v
-# Expected output: "Vehicle GET endpoint"
 
 echo ""
 echo "-----------------------------"
 
-curl http://localhost:3000/vehicle -X POST -v
-# Expected output: "Vehicle GET endpoint"
+curl http://localhost:3000/vehicle -X POST \
+    -d '{"manufacturer": "Narayan Ltd", "model": "Fancy Styles", "year": 2024}' \
+    -H "Content-Type: application/json" -v
 
 echo ""
 echo "-----------------------------"

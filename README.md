@@ -52,3 +52,4 @@ Enable macros
 - axum's extractors does json de/serialization, so we don't need serde's json feature
 - Functions and structs are private by default, add `pub` to make public
 - `Option<>` allows None values, but can have values wrapped with `Some()`.
+- Extractors are used for getting path parameters.

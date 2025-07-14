@@ -1,15 +1,14 @@
 use axum::{debug_handler, Json};
 
 
-
-
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Vehicle {
-    id: Option<String>,
     manufacturer: String,
     model: String,
     year: u16,
+    id: Option<String>,
 }
+
 
 #[debug_handler]
 pub async fn vehicle_get() -> Json<Vehicle> {
@@ -25,8 +24,10 @@ pub async fn vehicle_get() -> Json<Vehicle> {
 }
 
 
-pub async fn vehicle_post() -> &'static str {
-    "Vehicle POST endpoint"
+pub async fn vehicle_post(Json(mut v): Json<Vehicle>) -> Json<Vehicle> {
+    println!("Manufacturer: {0}, Model: {1}, Year: {2}", v.manufacturer, v.model, v.year);
+    v.id = Some(uuid::Uuid::new_v4().to_string());
+    Json::from(v)
 }
 
 
