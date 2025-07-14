@@ -40,7 +40,15 @@ cargo add uuid --features=v4
 cargo run
 ```
 
+### Debugger
+
+Enable macros
+
+
+
 ## Notes
 - axum's macros features is used for debug handler
 - serde's derive feature allows macros to add de/serialize traits to our custom structs
 - axum's extractors does json de/serialization, so we don't need serde's json feature
+- Functions and structs are private by default, add `pub` to make public
+- `Option<>` allows None values, but can have values wrapped with `Some()`.

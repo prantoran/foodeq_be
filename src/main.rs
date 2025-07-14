@@ -1,7 +1,10 @@
 use axum::{
-    routing::{get, post},
-    Router,
+    routing::{get, post}, Router
 };
+
+mod vehicle;    
+
+use vehicle::{vehicle_get, vehicle_post, vehicle_put};
 
 
 #[tokio::main]
@@ -26,19 +29,4 @@ async fn main() {
     let address: &str = "0.0.0.0:3000";
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
-}
-
-
-async fn vehicle_get() -> &'static str {
-    "Vehicle GET endpoint"
-}
-
-
-async fn vehicle_post() -> &'static str {
-    "Vehicle POST endpoint"
-}
-
-
-async fn vehicle_put() -> &'static str {
-    "Vehicle PUT endpoint"
 }
