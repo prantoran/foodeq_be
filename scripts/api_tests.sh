@@ -16,3 +16,9 @@ curl http://localhost:3000/vehicle -X POST \
 
 echo ""
 echo "-----------------------------"
+
+
+curl -X POST -v "http://localhost:3000/vehicle2?manufacturer=Chandra&model=BP%20Sweaters&year=2024&first_name=Bandana&last_name=Devi"
+
+echo ""
+echo "-----------------------------"

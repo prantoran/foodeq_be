@@ -1,4 +1,4 @@
-use axum::{debug_handler, Json};
+use axum::{debug_handler, Json, extract::Query};
 
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -7,6 +7,12 @@ pub struct Vehicle {
     model: String,
     year: u16,
     id: Option<String>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct Customer {
+    first_name: String,
+    last_name: String,
 }
 
 
@@ -26,6 +32,16 @@ pub async fn vehicle_get() -> Json<Vehicle> {
 
 pub async fn vehicle_post(Json(mut v): Json<Vehicle>) -> Json<Vehicle> {
     println!("Manufacturer: {0}, Model: {1}, Year: {2}", v.manufacturer, v.model, v.year);
+    v.id = Some(uuid::Uuid::new_v4().to_string());
+    Json::from(v)
+}
+
+
+pub async fn vehicle_post2(
+    Query(mut v): Query<Vehicle>,
+    Query(mut customer): Query<Customer>
+) -> Json<Vehicle> {
+    println!("Customer: {0} {1}", customer.first_name, customer.last_name);
     v.id = Some(uuid::Uuid::new_v4().to_string());
     Json::from(v)
 }
