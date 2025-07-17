@@ -39,7 +39,7 @@ pub async fn vehicle_post(Json(mut v): Json<Vehicle>) -> Json<Vehicle> {
 
 pub async fn vehicle_post2(
     Query(mut v): Query<Vehicle>,
-    Query(mut customer): Query<Customer>
+    Query(customer): Query<Customer>
 ) -> Json<Vehicle> {
     println!("Customer: {0} {1}", customer.first_name, customer.last_name);
     v.id = Some(uuid::Uuid::new_v4().to_string());
