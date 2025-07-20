@@ -9,6 +9,7 @@ use serde_json::json;
 use std::env;
 
 mod vehicle;    
+mod hello;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
@@ -259,8 +260,8 @@ async fn main() {
     println!("Starting nutrition analysis server...");
 
     // build our application with routes
-    let app: Router = Router::new().route("/", get(|| async { "Hello, World!" }));
-    
+    let routes_all: Router = Router::new().route("/", get(|| async { "Hello, World!" }));
+
     let router01 = Router::new()
         .route("/vehicle", post(vehicle_post).get(vehicle_get).put(vehicle_put));
     let router02: Router = Router::new()
@@ -271,13 +272,14 @@ async fn main() {
         .route("/analyze-image", post(analyze_image))
         .with_state(app_state);
 
-    let app = app.merge(router01);
-    let app = app.merge(router02);
-    let app = app.merge(nutrition_router);
+    let routes_all = routes_all.merge(hello::routes_hello());
+    let routes_all = routes_all.merge(router01);
+    let routes_all = routes_all.merge(router02);
+    let routes_all = routes_all.merge(nutrition_router);
     
     // run our app with hyper, listening globally on port 3000
-    let address: &str = "0.0.0.0:3000";
-    println!("Server running on http://{}", address);
-    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let addr: &str = "0.0.0.0:3000";
+    println!("Server running on http://{}", addr);
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, routes_all).await.unwrap();
 }

@@ -45,6 +45,8 @@ cargo run
 Enable macros
 
 
+## Tests
+[docs/tests.md](docs/tests.md)
 
 ## Notes
 - axum's macros features is used for debug handler
