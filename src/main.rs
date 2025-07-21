@@ -7,6 +7,7 @@ use axum::{
     Router,
 };
 use serde_json::json;
+use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
 use std::env;
 
@@ -287,7 +288,9 @@ async fn main() {
         .merge(nutrition_router)
         .merge(web::routes_login::routes())
         .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
+        .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
+    // The layers ^ are executed from bottom to top.
 
     // run our app with hyper, listening globally on port 3000
     let addr: &str = "0.0.0.0:3000";

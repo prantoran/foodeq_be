@@ -19,5 +19,8 @@ async fn quick_dev() -> Result<()> {
     );
     req_login.await?.print().await?;
 
+    // Checking cookie set by login
+    hc.do_get("/hello?name=pinku").await?.print().await?;
+
     Ok(())
 }

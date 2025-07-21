@@ -1,8 +1,9 @@
-use crate::error::{Error, Result};
+use crate::{error::{Error, Result}, web::AUTH_TOKEN};
 
 use axum::{routing::post, Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
+use tower_cookies::{Cookie, Cookies};
 
 pub fn routes() -> Router {
     Router::new()
@@ -17,7 +18,7 @@ struct LoginPayload {
 }
 
 #[axum::debug_handler]
-async fn api_login(payload: Json<LoginPayload>) -> Result<Json<Value>> {
+async fn api_login(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json<Value>> {
     println!("->> {:<12} - api_login with payload: {:?}", "HANDLER", payload);
 
     // TODO: Implement real db/auth logic.
@@ -25,7 +26,8 @@ async fn api_login(payload: Json<LoginPayload>) -> Result<Json<Value>> {
         return Err(Error::LoginFail);
     }
 
-    // TODO: Set cookies or session data as needed.
+    // FIXME: Implement real auth-token generatution/signature.
+    cookies.add(Cookie::new(AUTH_TOKEN, "user-1.exp_date.signature"));
     println!("->> {:<12} - Login successful for user: {}", "HANDLER", payload.username);
 
     // Create the success body.
