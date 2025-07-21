@@ -15,6 +15,7 @@ mod vehicle;
 mod hello;
 
 mod error;
+mod web;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
@@ -265,23 +266,25 @@ async fn main() {
     println!("Starting nutrition analysis server...");
 
     // build our application with routes
-    let routes_all: Router = Router::new().route("/", get(|| async { "Hello, World!" }));
-
-    let router01 = Router::new()
-        .route("/vehicle", post(vehicle_post).get(vehicle_get).put(vehicle_put));
-    let router02: Router = Router::new()
-        .route("/vehicle2", post(vehicle_post2));
     
+    let router01 = Router::new()
+    .route("/vehicle", post(vehicle_post).get(vehicle_get).put(vehicle_put));
+    let router02: Router = Router::new()
+    .route("/vehicle2", post(vehicle_post2));
+
     // Add the nutrition analysis endpoint
     let nutrition_router = Router::new()
         .route("/analyze-image", post(analyze_image))
         .with_state(app_state);
 
-    let routes_all = routes_all.merge(hello::routes_hello());
-    let routes_all = routes_all.merge(router01);
-    let routes_all = routes_all.merge(router02);
-    let routes_all = routes_all.merge(nutrition_router);
-    let routes_all = routes_all.fallback_service(routes_static());
+    let routes_all: Router = Router::new()
+        .route("/", get(|| async { "Hello, World!" }))
+        .merge(hello::routes_hello())
+        .merge(router01)
+        .merge(router02)
+        .merge(nutrition_router)
+        .merge(web::routes_login::routes())
+        .fallback_service(routes_static());
 
     // run our app with hyper, listening globally on port 3000
     let addr: &str = "0.0.0.0:3000";
