@@ -1,8 +1,9 @@
 use axum::{
-    extract::State,
+    extract::State, 
     http::StatusCode,
+    middleware,
     response::Json,
-    routing::{get, get_service, post}, 
+    routing::{get, get_service, post},
     Router,
 };
 use serde_json::json;
@@ -16,6 +17,7 @@ mod hello;
 
 mod error;
 mod web;
+mod middlewares;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
@@ -284,6 +286,7 @@ async fn main() {
         .merge(router02)
         .merge(nutrition_router)
         .merge(web::routes_login::routes())
+        .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
         .fallback_service(routes_static());
 
     // run our app with hyper, listening globally on port 3000
