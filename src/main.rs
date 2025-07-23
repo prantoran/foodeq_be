@@ -19,6 +19,7 @@ mod hello;
 mod error;
 mod web;
 mod middlewares;
+mod models;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 

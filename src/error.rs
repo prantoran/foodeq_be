@@ -4,8 +4,14 @@ use reqwest::StatusCode;
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum Error {
     LoginFail,
+
+    // - Model errors
+    TicketDeleteFailIdNotFound {
+        id: u64,
+    }
 }
 
 impl std::fmt::Display for Error {
