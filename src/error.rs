@@ -11,7 +11,10 @@ pub enum Error {
     // - Model errors
     TicketDeleteFailIdNotFound {
         id: u64,
-    }
+    },
+
+    // - Auth errors
+    AuthFailNoAuthTokenCookie,
 }
 
 impl std::fmt::Display for Error {

@@ -285,6 +285,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mc = ModelController::new().await?;
     
+    let routes_apis = web::routes_ticket::routes(mc.clone())
+        .route_layer(middleware::from_fn(middlewares::mw_auth::mw_require_auth)); // apply auth middleware to ticket routes only
+
     let routes_all: Router = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .merge(hello::routes_hello())
@@ -292,7 +295,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(router02)
         .merge(nutrition_router)
         .merge(web::routes_login::routes())
-        .nest("/api", web::routes_ticket::routes(mc.clone()))
+        .nest("/api", routes_apis)
         .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
