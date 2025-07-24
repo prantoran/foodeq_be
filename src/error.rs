@@ -20,6 +20,8 @@ impl std::fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 impl IntoResponse for Error {
     fn into_response(self) -> Response<axum::body::Body> {
         println!("->> {:<12} - {self:?}", "INTO_RES");

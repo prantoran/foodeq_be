@@ -23,6 +23,8 @@ mod models;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
+use crate::models::model::ModelController;
+
 
 // AppState holds the Gemini API client or any other shared state.
 #[derive(Clone)]
@@ -255,7 +257,7 @@ fn parse_numeric_field(value: &serde_json::Value, field_name: &str) -> Option<f3
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables from .env file
     dotenv::dotenv().ok();
     
@@ -281,6 +283,8 @@ async fn main() {
         .route("/analyze-image", post(analyze_image))
         .with_state(app_state);
 
+    let mc = ModelController::new().await?;
+    
     let routes_all: Router = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .merge(hello::routes_hello())
@@ -288,6 +292,7 @@ async fn main() {
         .merge(router02)
         .merge(nutrition_router)
         .merge(web::routes_login::routes())
+        .nest("/api", web::routes_ticket::routes(mc.clone()))
         .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
@@ -298,6 +303,7 @@ async fn main() {
     println!("Server running on http://{}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
+    Ok(())
 }
 
 fn routes_static() -> Router {
