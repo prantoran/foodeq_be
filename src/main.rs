@@ -16,6 +16,7 @@ use std::env;
 mod vehicle;    
 mod hello;
 
+mod ctx;
 mod error;
 mod web;
 mod middlewares;
