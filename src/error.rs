@@ -15,6 +15,7 @@ pub enum Error {
 
     // - Auth errors
     AuthFailNoAuthTokenCookie,
+    AuthFailTokenWrongFormat,
 }
 
 impl std::fmt::Display for Error {
