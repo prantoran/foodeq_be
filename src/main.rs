@@ -298,6 +298,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(web::routes_login::routes())
         .nest("/api", routes_apis)
         .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
+        .layer(middleware::from_fn_with_state(
+            mc.clone(),
+            middlewares::mw_auth::mw_ctx_resolver,
+        ))
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
     // The layers ^ are executed from bottom to top.
