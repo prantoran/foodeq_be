@@ -1,10 +1,12 @@
 use axum::{http::Response, response::IntoResponse};
 use reqwest::StatusCode;
+use serde::Serialize;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Clone, strum_macros::AsRefStr)]
-#[allow(dead_code)]
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
+#[allow(dead_code)] // TODO: remove this when all errors are handled
 pub enum Error {
     LoginFail,
 
@@ -42,7 +44,7 @@ impl IntoResponse for Error {
 }
 
 impl Error {
-    pub fn clien_status_and_error(&self) -> (StatusCode, ClientError) {
+    pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
         match self {
             Self::LoginFail => (StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL),
             // - Auth errors
@@ -52,7 +54,7 @@ impl Error {
                 (StatusCode::FORBIDDEN, ClientError::NO_AUTH)
             }
             // - Model errors
-            Self::TicketDeleteFailIdNotFound { id } => {
+            Self::TicketDeleteFailIdNotFound { .. } => {
                 (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
             }
             // - Fallback

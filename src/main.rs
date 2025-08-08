@@ -1,6 +1,6 @@
 use axum::{
     extract::State, 
-    http::StatusCode,
+    http::{StatusCode},
     middleware,
     response::Json,
     routing::{get, get_service, post},
@@ -21,10 +21,11 @@ mod error;
 mod web;
 mod middlewares;
 mod models;
+mod log;
 
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
-use crate::models::model::ModelController;
+use crate::{middlewares::mappers::main_response_mapper, models::model::ModelController};
 
 
 // AppState holds the Gemini API client or any other shared state.
@@ -297,7 +298,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(nutrition_router)
         .merge(web::routes_login::routes())
         .nest("/api", routes_apis)
-        .layer(middleware::map_response(middlewares::mappers::main_response_mapper))
+        .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
             mc.clone(),
             middlewares::mw_auth::mw_ctx_resolver,
