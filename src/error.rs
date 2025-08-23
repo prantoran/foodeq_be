@@ -58,10 +58,10 @@ impl Error {
                 (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
             }
             // - Fallback
-            _ => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ClientError::SERVICE_ERROR,
-            ),
+            // _ => (
+            //     StatusCode::INTERNAL_SERVER_ERROR,
+            //     ClientError::SERVICE_ERROR,
+            // ),
         }
     }
 }
@@ -72,5 +72,5 @@ pub enum ClientError {
     LOGIN_FAIL,
     NO_AUTH,
     INVALID_PARAMS,
-    SERVICE_ERROR,
+    // SERVICE_ERROR,
 }

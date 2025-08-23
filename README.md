@@ -40,6 +40,16 @@ cargo add uuid --features=v4
 cargo run
 ```
 
+### Watch
+
+```sh
+# Terminal 1 - To run the server.
+
+cargo watch -q -c -w src/ -x run -w crates/libs/ -w .cargo/ -x "run -p web-server"
+
+cargo watch -q -c -w examples/ -x "test -q quick_dev -- --nocapture"
+```
+
 ### Debugger
 
 Enable macros

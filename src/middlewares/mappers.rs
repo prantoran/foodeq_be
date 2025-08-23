@@ -6,15 +6,16 @@ use reqwest::Method;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{ctx::Ctx, error::Error, log::log_request};
+use crate::{ctx::Ctx, error::{Result, Error}, log::log_request};
 
 pub async fn main_response_mapper(
-    // ctx: Option<Ctx>,
-    // uri: Uri,
-    // req_method: Method,
+    ctx: Result<Ctx>,
+    uri: Uri,
+    req_method: Method,
     res: Response<axum::body::Body>
 ) -> Response<axum::body::Body> {
     println!("->> {:<12} - main_response_mapper", "MIDDLEWARE");
+    // let ctx = ctx.map(|ctx| ctx.0).ok();
     let uuid = Uuid::new_v4();
 
     // -- Get the eventual response error.
@@ -40,9 +41,9 @@ pub async fn main_response_mapper(
     
     // -- TODO: Build and log the server log line.
     let client_error = client_status_error.unzip().1;
-    // log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
+    let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
 
-    println!("   ->> server log line - {uuid} - Error: {service_error:?} Client Error: {client_error:?}");
+    // println!("   ->> server log line - {uuid} - Error: {service_error:?} Client Error: {client_error:?}");
     println!();
     error_response.unwrap_or(res)
 }

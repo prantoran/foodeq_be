@@ -1,12 +1,9 @@
-use core::time;
-use std::{task::Context, time::{SystemTime, UNIX_EPOCH}};
-
+use std::{time::{SystemTime, UNIX_EPOCH}};
 use crate::{
     ctx::Ctx, 
     error::{ClientError, Error, Result}
 };
 use axum::http::Uri;
-use httpc_test::Client;
 use reqwest::Method;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -17,7 +14,7 @@ pub async fn log_request(
     uuid: Uuid,
     req_method: Method,
     uri: Uri,
-    ctx: Option<Ctx>,
+    ctx: Result<Ctx>,
     service_error: Option<&Error>,
     client_error: Option<ClientError>,
 ) -> Result<()> {
@@ -55,7 +52,7 @@ struct RequestLogLine {
     uuid: String, // uuid string formatted
     timestamp: String, // ISO 8601 formatted timestamp
     // -- User and context attributes.
-    user_id: Option<u64>,
+    user_id: Result<u64>,
     
     // -- http Request attributes. 
     req_path: String,

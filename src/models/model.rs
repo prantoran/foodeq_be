@@ -64,7 +64,7 @@ impl ModelController {
 
     pub async fn list_tickets(
         &self,
-        ctx: Ctx
+        _ctx: Ctx
     ) -> Result<Vec<Ticket>> {
         let store = self.tickets_store.lock().unwrap();
         
@@ -78,7 +78,7 @@ impl ModelController {
 
     pub async fn delete_ticket(
         &self,
-        ctx: Ctx,
+        _ctx: Ctx,
         id: u64
     ) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();

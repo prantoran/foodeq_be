@@ -7,12 +7,10 @@ use axum::http::Request;
 
 use axum::http::Response;
 use axum::middleware::Next;
-use axum::RequestPartsExt;
 use lazy_regex::regex_captures;
 use tower_cookies::Cookie;
 use tower_cookies::Cookies;
 
-use crate::error;
 use crate::models::model::ModelController;
 use crate::web::AUTH_TOKEN;
 use crate::error::{Error, Result};
