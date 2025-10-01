@@ -11,7 +11,7 @@ use lazy_regex::regex_captures;
 use tower_cookies::Cookie;
 use tower_cookies::Cookies;
 
-use crate::models::model::ModelController;
+use crate::model::model::ModelManager;
 use crate::web::AUTH_TOKEN;
 use crate::error::{Error, Result};
 use crate::ctx::Ctx;
@@ -29,16 +29,21 @@ pub async fn mw_require_auth(
     Ok(next.run(req).await)
 }
 
-pub async fn mw_ctx_resolver(
-    _mc: State<ModelController>,
+// IMPORTANT: This resolver must never fail, but rather capture the potential Auth error and put in in the
+//            request extension as CtxExtResult.
+//            This way it won't prevent downstream middleware to be executed, and will still capture the error
+//            for the appropriate middleware (.e.g., mw_ctx_require which forces successful auth) or handler
+//            to get the appropriate information.
+pub async fn mw_ctx_resolve(
+    _mm: State<ModelManager>,
     cookies: Cookies,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response<Body>> {
-    println!("->> {:12} - mw_ctx_resolver", "MIDDLEWARE");
+    println!("->> {:12} - mw_ctx_resolve", "MIDDLEWARE");
 
     let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
-
+    println!("   ->> AUTH_TOKEN cookie: {auth_token:?}");
     let result_ctx = match auth_token
         .ok_or(Error::AuthFailNoAuthTokenCookie)
         .and_then(parse_token)
@@ -55,7 +60,7 @@ pub async fn mw_ctx_resolver(
         && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie))
     {
         cookies.remove(Cookie::from(AUTH_TOKEN));
-        println!("->> {:<12} - mw_ctx_resolver - Removed AUTH_TOKEN cookie", "MIDDLEWARE");
+        println!("->> {:<12} - mw_ctx_resolve - Removed AUTH_TOKEN cookie", "MIDDLEWARE");
     }
 
     // Store the ctx_result in the request extensions.

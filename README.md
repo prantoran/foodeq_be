@@ -42,12 +42,16 @@ cargo run
 
 ### Watch
 
+#### Running the server
 ```sh
 # Terminal 1 - To run the server.
+cargo watch -q -c -w src -x "run"
+```
 
-cargo watch -q -c -w src/ -x run -w crates/libs/ -w .cargo/ -x "run -p web-server"
-
-cargo watch -q -c -w examples/ -x "test -q quick_dev -- --nocapture"
+#### Running quick_dev for live testing
+```sh
+# Terminal 2 - To run the quick_dev.
+cargo watch -q -c -w examples/ -x "run --example quick_dev"
 ```
 
 ### Debugger

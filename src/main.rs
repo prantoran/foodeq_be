@@ -3,12 +3,11 @@ use axum::{
     http::{StatusCode},
     middleware,
     response::Json,
-    routing::{get, get_service, post},
+    routing::{get, post},
     Router,
 };
 use serde_json::json;
 use tower_cookies::CookieManagerLayer;
-use tower_http::services::ServeDir;
 use std::env;
 
 // pub use self::error::{Error, Result};
@@ -20,12 +19,12 @@ mod ctx;
 mod error;
 mod web;
 mod middlewares;
-mod models;
+mod model;
 mod log;
-
+use crate::web::{routes_login, routes_static};
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
-use crate::{middlewares::mappers::main_response_mapper, models::model::ModelController};
+use crate::{middlewares::mappers::mw_response_map, model::model::ModelManager};
 
 
 // AppState holds the Gemini API client or any other shared state.
@@ -285,9 +284,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/analyze-image", post(analyze_image))
         .with_state(app_state);
 
-    let mc = ModelController::new().await?;
+    // Initialize ModelManager
+    let mm: ModelManager = ModelManager::new().await?;
+
+    // -- Define Routes
+    // let routs_rpc = rpc::routes(mm.clone()).route_layer(middleware::from_fn(mw_ctx_require));
     
-    let routes_apis = web::routes_ticket::routes(mc.clone())
+    let routes_apis = web::routes_ticket::routes(mm.clone())
         .route_layer(middleware::from_fn(middlewares::mw_auth::mw_require_auth)); // apply auth middleware to ticket routes only
 
     let routes_all: Router = Router::new()
@@ -296,15 +299,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(router01)
         .merge(router02)
         .merge(nutrition_router)
-        .merge(web::routes_login::routes())
+        .merge(routes_login::routes()) // api/login,logoff TODO: add encryption, secure web token
+        // .nest("/api", routes_rpc) // TODO
         .nest("/api", routes_apis)
-        .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::map_response(mw_response_map)) // Response mapping and logging, remaps error msgs to make sure we sent minimum info to client, and generate req line log for metrics
         .layer(middleware::from_fn_with_state(
-            mc.clone(),
-            middlewares::mw_auth::mw_ctx_resolver,
-        ))
+            mm.clone(),
+            middlewares::mw_auth::mw_ctx_resolve,
+        )) // resolves ctx for a given req, auth resolve will be executed for both api/login,logoff, as well as for rpc
         .layer(CookieManagerLayer::new())
-        .fallback_service(routes_static());
+        .fallback_service(routes_static::serve_dir("web-folder/"));
     // The layers ^ are executed from bottom to top.
 
     // run our app with hyper, listening globally on port 3000
@@ -315,7 +319,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn routes_static() -> Router {
-    Router::new()
-        .nest_service("/pub", get_service(ServeDir::new("./public")))
-}

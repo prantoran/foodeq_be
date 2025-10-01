@@ -21,16 +21,16 @@ pub struct TicketForCreate {
 
 // End: --Ticket Types
 
-// -- Model Controller
+// -- Model Manager
 
 #[derive(Clone)] // Clones the Arc, not the vector
-pub struct ModelController {
+pub struct ModelManager {
     // FIXME: Use a real database connection or ORM in production.
     tickets_store: Arc<Mutex<Vec<Option<Ticket>>>>, 
 }
 
 // Constructor
-impl ModelController {
+impl ModelManager {
     // Control the signature of the constructor early on,
     // so that we can swap the implementation later.
     pub async fn new() -> Result<Self> {
@@ -41,7 +41,7 @@ impl ModelController {
 }
 
 // CRUD Implementation
-impl ModelController {
+impl ModelManager {
     pub async fn create_ticket(
         &self,
         ctx: Ctx,
@@ -90,5 +90,8 @@ impl ModelController {
     }
 }
 
-// End: -- Model Controller
+// End: -- Model Manager
+
+
+
 
