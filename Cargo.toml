@@ -1,19 +1,22 @@
 [package]
-name = "server"
+name = "foodeq-be-webapp"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 tokio = { version = "1.46.1", features = ["full"] }
-# Serde / json
+# -- Serde / json
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0"
 serde_with = "3.14.0"
-# Axum
+# -- Axum
 axum = { version = "0.8.4", features = ["macros", "http2", "ws"] }
 tower-http = { version = "0.6", features = ["fs"] }
 tower-cookies = "0.11.0"
-# Others
+# -- Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# -- Others
 strum_macros = "0.27.2"
 uuid = { version = "1.17.0", features = ["v4"] }
 reqwest = { version = "0.12", features = ["json"] }

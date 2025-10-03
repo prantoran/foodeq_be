@@ -1,6 +1,7 @@
 use axum::{http::Response, response::IntoResponse};
 use reqwest::StatusCode;
 use serde::Serialize;
+use tracing::info;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -31,7 +32,7 @@ impl std::error::Error for Error {}
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response<axum::body::Body> {
-        println!("->> {:<12} - {self:?}", "INTO_RES");
+        info!("{:<12} - {self:?}", "INTO_RES");
         
         // Create a placeholder Axum response
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();

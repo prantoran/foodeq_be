@@ -8,6 +8,8 @@ use axum::{
 };
 use serde_json::json;
 use tower_cookies::CookieManagerLayer;
+use tracing::{debug, info};
+use tracing_subscriber::EnvFilter;
 use std::env;
 
 // pub use self::error::{Error, Result};
@@ -121,7 +123,7 @@ async fn call_gemini_api(api_key: &str, base64_image: &str) -> Result<NutritionR
         .and_then(|t| t.as_str())
         .ok_or("Failed to extract text from Gemini response")?;
 
-    println!("generated_text: {}\n", generated_text);
+    debug!("generated_text: {}\n", generated_text);
 
     // Parse the JSON response from Gemini with error handling
     let nutrition_response = parse_gemini_response(generated_text)?;
@@ -137,9 +139,9 @@ fn parse_gemini_response(generated_text: &str) -> Result<NutritionResponse, Box<
         Err(_) => {
             // If direct parsing fails, try to extract JSON from the text
             // Sometimes Gemini wraps JSON in markdown code blocks or adds extra text
-            println!("Could not parse directly\n");
+            info!("Could not parse directly\n");
             if let Some(json_str) = extract_json_from_text(generated_text) {
-                println!("json_str: {}", json_str);
+                debug!("json_str: {}", json_str);
                 serde_json::from_str(&json_str)?
             } else {
                 return Err("No valid JSON found in Gemini response".into());
@@ -261,6 +263,12 @@ fn parse_numeric_field(value: &serde_json::Value, field_name: &str) -> Option<f3
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables from .env file
     dotenv::dotenv().ok();
+
+    tracing_subscriber::fmt()
+        .without_time() // For early local development, omit timestamps
+        .with_target(false)
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
     
     // Get the Gemini API key from environment
     let gemini_api_key = env::var("GEMINI_API_KEY")
@@ -270,7 +278,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gemini_api_key,
     };
 
-    println!("Starting nutrition analysis server...");
+    info!("Starting nutrition analysis server...");
 
     // build our application with routes
     
@@ -313,7 +321,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // run our app with hyper, listening globally on port 3000
     let addr: &str = "0.0.0.0:3000";
-    println!("Server running on http://{}", addr);
+    info!("{:<12} - {addr}\n", "LISTENING");
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
     Ok(())

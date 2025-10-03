@@ -45,7 +45,7 @@ cargo run
 #### Running the server
 ```sh
 # Terminal 1 - To run the server.
-cargo watch -q -c -w src -x "run"
+cargo watch -q -c -w src -w .cargo/ -x "run"
 ```
 
 #### Running quick_dev for live testing

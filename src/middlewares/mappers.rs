@@ -4,6 +4,7 @@ use axum::{
 };
 use reqwest::Method;
 use serde_json::json;
+use tracing::debug;
 use uuid::Uuid;
 
 use crate::{ctx::Ctx, error::{Result, Error}, log::log_request};
@@ -14,7 +15,7 @@ pub async fn mw_response_map(
     req_method: Method,
     res: Response<axum::body::Body>
 ) -> Response<axum::body::Body> {
-    println!("->> {:<12} - mw_response_map", "MIDDLEWARE");
+    debug!("{:<12} - mw_response_map", "MIDDLEWARE");
     // let ctx = ctx.map(|ctx| ctx.0).ok();
     let uuid = Uuid::new_v4();
 
@@ -33,7 +34,7 @@ pub async fn mw_response_map(
                 }
             });
  
-            println!("->> {:<12} - {client_error_body}", "CLIENT_ERROR");
+            debug!("{:<12} - {client_error_body}", "CLIENT_ERROR");
             
             // Build the new response from the client error body.
             (*status_code, Json(client_error_body)).into_response()
@@ -43,7 +44,7 @@ pub async fn mw_response_map(
     let client_error = client_status_error.unzip().1;
     let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
 
-    // println!("   ->> server log line - {uuid} - Error: {service_error:?} Client Error: {client_error:?}");
-    println!();
+    // debug!("server log line - {uuid} - Error: {service_error:?} Client Error: {client_error:?}");
+    debug!("\n"); // will not have any meaning when multiple requests are logged at the same time.
     error_response.unwrap_or(res)
 }

@@ -10,6 +10,7 @@ use axum::middleware::Next;
 use lazy_regex::regex_captures;
 use tower_cookies::Cookie;
 use tower_cookies::Cookies;
+use tracing::debug;
 
 use crate::model::model::ModelManager;
 use crate::web::AUTH_TOKEN;
@@ -22,7 +23,7 @@ pub async fn mw_require_auth(
     req: Request<Body>,
     next: Next
 ) -> Result<Response<Body>> {
-    println!("->> {:12} - mw_require_auth - {ctx:?}", "MIDDLEWARE");
+    debug!("{:12} - mw_require_auth - {ctx:?}", "MIDDLEWARE");
 
     ctx?;
 
@@ -33,17 +34,17 @@ pub async fn mw_require_auth(
 //            request extension as CtxExtResult.
 //            This way it won't prevent downstream middleware to be executed, and will still capture the error
 //            for the appropriate middleware (.e.g., mw_ctx_require which forces successful auth) or handler
-//            to get the appropriate information.
+//            to get the appropriate debugrmation.
 pub async fn mw_ctx_resolve(
     _mm: State<ModelManager>,
     cookies: Cookies,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response<Body>> {
-    println!("->> {:12} - mw_ctx_resolve", "MIDDLEWARE");
+    debug!("{:12} - mw_ctx_resolve", "MIDDLEWARE");
 
     let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
-    println!("   ->> AUTH_TOKEN cookie: {auth_token:?}");
+    debug!("AUTH_TOKEN cookie: {auth_token:?}");
     let result_ctx = match auth_token
         .ok_or(Error::AuthFailNoAuthTokenCookie)
         .and_then(parse_token)
@@ -60,7 +61,7 @@ pub async fn mw_ctx_resolve(
         && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie))
     {
         cookies.remove(Cookie::from(AUTH_TOKEN));
-        println!("->> {:<12} - mw_ctx_resolve - Removed AUTH_TOKEN cookie", "MIDDLEWARE");
+        debug!("{:<12} - mw_ctx_resolve - Removed AUTH_TOKEN cookie", "MIDDLEWARE");
     }
 
     // Store the ctx_result in the request extensions.
@@ -79,7 +80,7 @@ where
     type Rejection = Error;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self> {
-        println!("->> {:12} - Ctx", "EXTRACTOR");
+        debug!("{:12} - Ctx", "EXTRACTOR");
 
         parts
             .extensions
@@ -95,7 +96,7 @@ where
 /// Parse a token of format `user-[user-id].[expiration].[signature]`
 /// Returns (user_id, expiration, signature)
 pub fn parse_token(token: String) -> Result<(u64, String, String)> {
-    println!("->> {:<12} - parse_token - token: {token}", "PARSE_TOKEN");
+    debug!("{:<12} - parse_token - token: {token}", "PARSE_TOKEN");
     
     let (_whole, user_id, exp, sign) = regex_captures!(
         r#"^user-(\d+)\.(\d+)\.(.+)$"#, // a literal regex

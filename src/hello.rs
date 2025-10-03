@@ -5,6 +5,7 @@ use axum::{
     Router,
     routing::get,
 };
+use tracing::debug;
 
 pub fn routes_hello() -> Router {
     Router::new()
@@ -20,7 +21,7 @@ pub struct HelloParams {
 
 // /hello?name=pinku
 pub async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
-    println!("->> {:<12} - handler hello - {params:?}", "HANDLER");
+    debug!("{:<12} - handler hello - {params:?}", "HANDLER");
     
     let name: &str = params.name.as_deref().unwrap_or("World!!!");
     
@@ -29,7 +30,7 @@ pub async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoRespon
 
 // /hello/pinku
 pub async fn handler_hello2(Path(name): Path<String>) -> impl IntoResponse {
-    println!("->> {:<12} - handler hello2 - {name:?}", "HANDLER");
+    debug!("{:<12} - handler hello2 - {name:?}", "HANDLER");
     
     Html(format!("<h1>Hello, <strong>{name}</strong></h1>"))
 }
