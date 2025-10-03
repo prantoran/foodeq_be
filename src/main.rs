@@ -1,3 +1,18 @@
+
+// region:     --- Modules
+mod config;
+mod vehicle;    
+mod hello;
+mod ctx;
+mod error;
+mod web;
+mod middlewares;
+mod model;
+mod log;
+
+// pub use self::error::{Error, Result};
+pub use config::config; // allows use crate::config 
+
 use axum::{
     extract::State, 
     http::{StatusCode},
@@ -12,17 +27,6 @@ use tracing::{debug, info};
 use tracing_subscriber::EnvFilter;
 use std::env;
 
-// pub use self::error::{Error, Result};
-
-mod vehicle;    
-mod hello;
-
-mod ctx;
-mod error;
-mod web;
-mod middlewares;
-mod model;
-mod log;
 use crate::web::{routes_login, routes_static};
 use vehicle::{vehicle_get, vehicle_post, vehicle_put, vehicle_post2};
 
@@ -316,7 +320,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             middlewares::mw_auth::mw_ctx_resolve,
         )) // resolves ctx for a given req, auth resolve will be executed for both api/login,logoff, as well as for rpc
         .layer(CookieManagerLayer::new())
-        .fallback_service(routes_static::serve_dir("web-folder/"));
+        .fallback_service(routes_static::serve_dir(&config().WEB_FOLDER));
     // The layers ^ are executed from bottom to top.
 
     // run our app with hyper, listening globally on port 3000

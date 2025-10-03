@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
     // hc.do_get("/hello?name=pinku").await?.print().await?;
     // hc.do_get("/hello2/prantoran").await?.print().await?;
     // hc.do_get("/pub/welcome.txt").await?.print().await?;
-    // hc.do_get("/index.html").await?.print().await?;
+    hc.do_get("/index.html").await?.print().await?;
 
 
     let req_login = hc.do_post(

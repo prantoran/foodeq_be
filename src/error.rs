@@ -9,14 +9,18 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde(tag = "type", content = "data")]
 #[allow(dead_code)] // TODO: remove this when all errors are handled
 pub enum Error {
+    // -- Config
+    ConfigMissingEnv(&'static str),
+
+    // -- Login errors
     LoginFail,
 
-    // - Model errors
+    // -- Model errors
     TicketDeleteFailIdNotFound {
         id: u64,
     },
 
-    // - Auth errors
+    // -- Auth errors
     AuthFailNoAuthTokenCookie,
     AuthFailTokenWrongFormat,
     AuthFailCtxNotInRequestExt
@@ -50,14 +54,15 @@ impl Error {
             Self::LoginFail => (StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL),
             // - Auth errors
             Self::AuthFailNoAuthTokenCookie
-                | Self::AuthFailTokenWrongFormat
-                | Self::AuthFailCtxNotInRequestExt => {
-                (StatusCode::FORBIDDEN, ClientError::NO_AUTH)
-            }
+                                    | Self::AuthFailTokenWrongFormat
+                                    | Self::AuthFailCtxNotInRequestExt => {
+                        (StatusCode::FORBIDDEN, ClientError::NO_AUTH)
+                    }
             // - Model errors
             Self::TicketDeleteFailIdNotFound { .. } => {
-                (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
-            }
+                        (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
+                    }
+            Error::ConfigMissingEnv(_) => todo!(),
             // - Fallback
             // _ => (
             //     StatusCode::INTERNAL_SERVER_ERROR,
