@@ -10,6 +10,9 @@ mod middlewares;
 mod model;
 mod log;
 
+// #[cfg(test)] // Commented during early dev
+pub mod _dev_utils;
+
 // pub use self::error::{Error, Result};
 pub use config::config; // allows use crate::config 
 
@@ -273,6 +276,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_target(false)
         .with_env_filter(EnvFilter::from_default_env())
         .init();
+
+    // -- FOR-DEV-ONLY
+    _dev_utils::init_dev().await; // recreate and seed dev db
+    // since there is no ? at the end of await, it will fail if it cannot initialize.
+    // -- END FOR-DEV-ONLY
     
     // Get the Gemini API key from environment
     let gemini_api_key = env::var("GEMINI_API_KEY")

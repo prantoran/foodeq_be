@@ -58,6 +58,9 @@ cargo watch -q -c -w examples/ -x "run --example quick_dev"
 
 Enable macros
 
+## Starting the DB
+
+See [docs/postgres.md](docs/postgres.md)
 
 ## Tests
 [docs/tests.md](docs/tests.md)
