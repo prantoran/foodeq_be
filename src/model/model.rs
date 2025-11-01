@@ -1,7 +1,7 @@
-//! Simplistic model layer
+//! Model layer
 //! (with mock-store layer)
 
-use crate::{ctx::Ctx, error::{Error, Result}};
+use crate::{ctx::Ctx, model::{Result, Error}, model::store::{Db, new_db_pool}};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 
@@ -27,16 +27,29 @@ pub struct TicketForCreate {
 pub struct ModelManager {
     // FIXME: Use a real database connection or ORM in production.
     tickets_store: Arc<Mutex<Vec<Option<Ticket>>>>, 
+    db: Db,
+    // we want to expose the db pool only to the model layer, done using pub(in crate::model) in impl ...
 }
 
 // Constructor
 impl ModelManager {
     // Control the signature of the constructor early on,
     // so that we can swap the implementation later.
-    pub async fn new() -> Result<Self> {
-        Ok(Self {
+    // We also want to have he new() accessible to modules such as main.rs
+    // new() is accessible to all the code base that has access to the ModelManager.
+    pub async fn new() -> std::result::Result<Self, Error> { // Constructor
+        let db = new_db_pool().await?; // new_db_pool can return a store error, but the Result is from the model layer, so we need to implement a variant in the model::error to map it.
+        Ok(ModelManager{
             tickets_store: Arc::default(),
+            db: db,
         })
+    }
+
+    // In crate model, restrict only to the modules that are below the model layer
+    // Returns the sqlx db pool reference.
+    // Only for the model layer
+    pub(in crate::model) fn db(&self) -> &Db {
+        &self.db
     }
 }
 
@@ -95,3 +108,4 @@ impl ModelManager {
 
 
 
+ 

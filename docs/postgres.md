@@ -1,19 +1,28 @@
 
 
+# Docker instance
 ```bash
 # Start postgresql server docker image:
 docker run --rm --name pg -p 5432:5432 \
    -e POSTGRES_PASSWORD=welcome \
    postgres:17
+```
+## Delete process running in port 5432
 
-# (optional) To have a psql terminal on pg. 
-# In another terminal (tab) run psql:
+```bash
+sudo lsof -n -i :5432 | grep LISTEN 
+sudo kill ...
+```
+
+# psql terminal on pg. 
+In another terminal (tab) run psql:
+```bash
 docker exec -it -u postgres pg psql
-
-# (optional) For pg to print all sql statements.
-# In psql command line started above.
+```
+In pgsql console
+```bash
+# print all sql statements.
 ALTER DATABASE postgres SET log_statement = 'all';
-
 
 # Connect to db
 \c app_db
