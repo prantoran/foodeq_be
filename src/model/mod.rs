@@ -20,9 +20,11 @@
 
 mod error;
 mod store;
+pub mod task;
 
 pub use self::error::{Error, Result};
 
 pub mod model;
+pub use self::model::ModelManager;
 
 // endregion:  --- Modules

@@ -1,13 +1,15 @@
 use axum::{http::Response, response::IntoResponse};
 use reqwest::StatusCode;
 use serde::Serialize;
+use serde_with::{serde_as, DisplayFromStr}; // for serializing errors that do not implement Serialize (i.e. sqlx::Error)
 use tracing::info;
 
 use crate::model::store;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde_as] // serde_as has to be before Serialize
+#[derive(Debug, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 #[allow(dead_code)] // TODO: remove this when all errors are handled
 pub enum Error {
@@ -29,14 +31,23 @@ pub enum Error {
     // -- Auth errors
     AuthFailNoAuthTokenCookie,
     AuthFailTokenWrongFormat,
-    AuthFailCtxNotInRequestExt
+    AuthFailCtxNotInRequestExt,
+
+    // -- External Service errors
+    Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error), // We do not have Serialize for sqlx::Error, so we cannot derive Serialize for Error if we embed sqlx::Error directly.
 }
 
 // region: --Froms
 
+impl From<sqlx::Error> for Error {
+    fn from(err: sqlx::Error) -> Self {
+        Self::Sqlx(err)
+    }
+}
+
 // Going from DB store::Error to model::Error
 impl From<store::error::Error> for Error {
-    fn from(e: store::error::Error) -> Self {
+    fn from(e: store::Error) -> Self {
         Error::Store(e.to_string())
     }
 }
@@ -59,7 +70,7 @@ impl IntoResponse for Error {
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
         // Insert the error into the response
-        response.extensions_mut().insert(self);
+        // response.extensions_mut().insert(self); // requires Clone trait on Error
 
         response
     }
@@ -81,6 +92,10 @@ impl Error {
                     }
             Error::ConfigMissingEnv(_) => todo!(),
             Error::Store(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ClientError::SERVICE_ERROR,
+            ),
+            Error::Sqlx(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ClientError::SERVICE_ERROR,
             ),
