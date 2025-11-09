@@ -1,4 +1,6 @@
 
+## Dev (watch)
+
 ```bash
 cargo watch -q -c -w src/ -x run
 ```
@@ -27,4 +29,14 @@ Hello <strong>World!!!</strong>
 
 .
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+```
+
+## Unit Test (watch)
+
+```bash
+cargo watch -q -c -x "test -- --nocapture"
+
+# specific test with filter, test_create_ok is a filter 
+cargo watch -q -c -x "test test_create_ok -- --nocapture"
+
 ```

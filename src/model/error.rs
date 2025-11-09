@@ -67,7 +67,7 @@ impl IntoResponse for Error {
         info!("{:<12} - {self:?}", "INTO_RES");
         
         // Create a placeholder Axum response
-        let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        let response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
         // Insert the error into the response
         // response.extensions_mut().insert(self); // requires Clone trait on Error

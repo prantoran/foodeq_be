@@ -1,10 +1,11 @@
 // region:    --- Modules
 
-
 mod dev_db; // recreate and seed dev db
 
 use tokio::sync::OnceCell;
-use tracing::info; // once lockish
+use tracing::info;
+
+use crate::model::ModelManager; // once lockish
 
 // endregion: --- Modules
 
@@ -18,4 +19,19 @@ pub async fn init_dev() {
         dev_db::init_dev_db().await.unwrap(); // unwrap ok for dev only, can break early but its fine
     })
     .await;
+}
+
+/// Initialize test environment
+pub async fn init_test() -> ModelManager {
+    static INIT: OnceCell<ModelManager> = OnceCell::const_new();
+
+    // returns a reference to the ModelManager
+    let mm = INIT
+        .get_or_init(|| async {
+            init_dev().await;
+            ModelManager::new().await.unwrap() // better to crash early in tests than proceed with invalid state
+        })
+        .await;
+    
+    mm.clone()
 }

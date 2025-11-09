@@ -5,7 +5,7 @@ use tracing::debug;
 
 use crate::ctx::Ctx;
 use crate::model::model::{ModelManager, Ticket, TicketForCreate};
-use crate::error::Result;
+// use crate::error::Result;
 
 #[derive(Clone, FromRef)]
 struct AppState {
